@@ -11,6 +11,7 @@ public class ProductDTO {
 	private Long id;
 	private String name;
 	
+	// Associação com lista de categoria DTO
 	private List<CategoryDTO> categories = new ArrayList<>();
 	
 	public ProductDTO() {
@@ -23,10 +24,16 @@ public class ProductDTO {
 		this.categories = categories;
 	}
 	
+	// Converte um Product para ProductDTO
 	public ProductDTO(Product product) {
 		id = product.getId();
 		name = product.getName();
-		categories = product.getCategories().stream().map(x -> new CategoryDTO(x)).collect(Collectors.toList());
+		
+		// Poderia ser feito como categories = product.getCategories().stream().map(x -> new CategoryDTO(x)).collect(Collectors.toList());
+		// Utilizado para buscar as categorias do Produto. O JPA por padrão, quando se tem um objeto
+		// e associado a ele pode ter vários outros objetos. Estes vários, por padrão, não são carregados
+		// (lazy loading)
+		categories = product.getCategories().stream().map(CategoryDTO::new).collect(Collectors.toList());
 	}
 
 	public Long getId() {

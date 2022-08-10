@@ -1,5 +1,7 @@
 package com.example.demo.service;
 
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,7 +20,14 @@ public class ProductService {
 
 	@Transactional(readOnly = true)
 	public Page<ProductDTO> find(PageRequest pageRequest) {
-		Page<Product> list = repository.findAll(pageRequest);
-		return list.map(x -> new ProductDTO(x));
+		// É o page que traz o resultado elaborado (as informações de paginação do final)
+		// A classe Product é gerenciada pelo JPA
+		// Para isolar a camada, utilizamos um ProductDTO
+		// Tira o monitoramento da JPA, independente da conexão do banco
+		Page<Product> page = repository.findAll(pageRequest);
+		// Transformando a página em lista (Mapa de identidade)
+		repository.findProductsCategories(page.stream().collect(Collectors.toList()));
+		
+		return page.map(ProductDTO::new);
 	}
 }
